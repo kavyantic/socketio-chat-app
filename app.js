@@ -4,7 +4,12 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 const ejs = require("ejs");
-var WebSocket = require('ws')
+const http = require('http');
+const server = http.createServer(app);
+const { Server }  = require("socket.io");
+const io = new Server(server);
+
+
 
 
 
@@ -20,10 +25,10 @@ app.use(express.static("public"));
 
 ///////////////////////////////////Requests Targetting all Articles////////////////////////
 
-app.route("/start_game")
+app.route("/")
 
 .get(function(req, res){
-    res.render('game')
+    res.render('home')
   
 })
 
@@ -41,56 +46,18 @@ app.route("/start_game")
   
 });
 
-////////////////////////////////Requests Targetting A Specific Article////////////////////////
-
-app.route("/articles/:articleTitle")
-
-.get(function(req, res){
-
-  
-})
-
-.put(function(req, res){
-
-})
-
-.patch(function(req, res){
-
- 
-})
-
-.delete(function(req, res){
-
- 
-});
 
 
 
-var server = app.listen(3000, function() {
+
+server.listen(3000, function() {
   console.log("Server started on port 3000");
 });
 
 
-const wss = new WebSocket.Server({
-  port: 8080,
-});
-
-connectedClients = {}
-id = 0;
-wss.on('connection', (ws,req) => {
-  ws.id = id+=1;
-  ws.send('Connected');
-
-
-
-  ws.on('message', (data) => {
-
-    wss.clients.forEach((client) => {
-      if (client.readyState === WebSocket.OPEN) {
-        toBeSent = {id:id,data:data.event}
-        client.send(JSON.stringify(toBeSent));
-      }
-    });
+io.on('connection', (socket) => {
+  socket.on('chatMessage', (msg) => {
+    io.emit('serverMessage', msg); // This will emit the event to all connected sockets
+ console.log(msg);
   });
-
 });

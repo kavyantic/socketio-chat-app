@@ -1,16 +1,16 @@
 
 const chatConsole = document.querySelector('.chat-console')
 var myMsg = ''
-const ws = new WebSocket('ws://localhost:8080/')
+var socket = io();
 
-ws.addEventListener('open', function (event) {
-    ws.send('Hello Server!');
+socket.addEventListener('open', function (event) {
+    socket.send('Hello Server!');
 });
-ws.addEventListener('message', function (event) {
-    if(event.data!==myMsg.toString()){
-        createMsg(event.data,'server-messege')
-    }
-    console.log('Message from server ', event.data);
+
+
+socket.addEventListener('serverMessage', function (data) {
+    createMsg(data,'server-messege')
+    console.log('Message from server ', data);
 });
 
 //
@@ -22,7 +22,7 @@ form.addEventListener('submit',function(event){
     event.preventDefault()
     var msg =  event.target.msg.value
     createMsg(msg,'my-messege')
-    ws.send(msg)
+    socket.emit("chatMessage",msg)
     myMsg = msg
 })
 
@@ -35,5 +35,4 @@ function createMsg(data,myClass){
     myMsg.innerText =data
     myDiv.appendChild(myMsg)
     chatConsole.appendChild(myDiv)
-
 }
